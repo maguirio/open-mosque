@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Open Mosque | Affiche imprimable</title>
+    <link rel="icon" href="assets/open-mosque-logo.jpg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="poster.css" />
+  </head>
+  <body>
+    <main class="poster-page">
+      <section class="poster-sheet">
+        <img class="poster-logo" src="assets/open-mosque-logo.jpg" alt="Open Mosque" />
+        <p class="poster-eyebrow">Journée portes ouvertes</p>
+        <h1>Invitez quelqu’un à découvrir la mosquée</h1>
+        <p class="poster-lead">
+          Scannez le code QR pour indiquer votre intention d’inviter un ami, un collègue
+          ou un voisin non musulman.
+        </p>
+        <div class="poster-details">
+          <div>
+            <span>Mosquée</span>
+            <strong id="posterCampaignName">Chargement...</strong>
+          </div>
+          <div>
+            <span>Événement</span>
+            <strong id="posterEventDate">-</strong>
+          </div>
+          <div>
+            <span>Objectif</span>
+            <strong><span id="posterGoal">-</span> invités</strong>
+          </div>
+        </div>
+        <div class="poster-qr-wrap">
+          <div id="posterQr" aria-label="Code QR de la campagne"></div>
+          <p><span id="posterHost">Open Mosque</span> · <span id="posterSlug">campagne</span></p>
+        </div>
+        <p class="poster-note" id="posterFoodInfo"></p>
+      </section>
+      <section class="poster-actions">
+        <a href="./" id="backToCampaign">Retour à la campagne</a>
+        <button type="button" onclick="window.print()">Imprimer / sauvegarder en PDF</button>
+      </section>
+    </main>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="config.js"></script>
+    <script type="module" src="poster.js"></script>
+  </body>
+</html>

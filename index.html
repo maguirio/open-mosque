@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Open Mosque aide les musulmans à inviter leurs proches non musulmans à découvrir leur mosquée."
+    />
+    <title>Open Mosque | Une invitation, une rencontre</title>
+    <link rel="icon" href="assets/open-mosque-logo.jpg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="top-pattern" aria-hidden="true"></div>
+
+    <header class="site-header">
+      <a class="brand" href="#" aria-label="Open Mosque, accueil">
+        <span class="brand-mark" aria-hidden="true">
+          <img src="assets/open-mosque-logo.jpg" alt="" />
+        </span>
+        <span class="brand-word">OPEN MOSQUE</span>
+      </a>
+      <nav class="header-actions">
+        <span class="connection-status" id="connectionStatus" hidden></span>
+        <button class="text-button" id="languageToggle" type="button">EN</button>
+        <button class="outline-button" id="adminOpenButton" type="button" data-i18n="admin">
+          Espace responsable
+        </button>
+      </nav>
+    </header>
+
+    <main>
+      <section class="home-section" id="homeSection" hidden>
+        <div class="home-copy">
+          <span class="eyebrow" data-i18n="homeEyebrow">Open Mosque</span>
+          <h1 data-i18n="homeTitle">Choisissez votre mosquée, puis annoncez votre intention.</h1>
+          <p class="hero-lead" data-i18n="homeLead">
+            Choisissez une campagne locale, puis indiquez combien de personnes vous
+            aimeriez inviter à la journée portes ouvertes.
+          </p>
+          <button class="primary-button hero-cta" id="homeSearchCta" type="button">
+            <span data-i18n="homeCta">Trouver ma mosquée</span>
+            <span aria-hidden="true">→</span>
+          </button>
+          <div class="home-guidance" aria-label="Étapes rapides">
+            <span data-i18n="homeStepOne">1. Recherchez la mosquée</span>
+            <span data-i18n="homeStepTwo">2. Cliquez sur Participer</span>
+            <span data-i18n="homeStepThree">3. Entrez votre intention</span>
+          </div>
+        </div>
+        <div class="mosque-directory" aria-labelledby="directoryTitle">
+          <label class="search-label" for="mosqueSearch">
+            <span data-i18n="searchLabel">Rechercher une mosquée</span>
+            <input
+              id="mosqueSearch"
+              type="search"
+              autocomplete="off"
+              placeholder="Laval, Montréal, centre..."
+              data-i18n-placeholder="searchPlaceholder"
+            />
+          </label>
+          <div class="directory-heading">
+            <h2 id="directoryTitle" data-i18n="directoryTitle">Mosquées participantes</h2>
+            <span id="directoryCount">0</span>
+          </div>
+          <p class="directory-hint" data-i18n="directoryHint">
+            Chaque carte mène directement à la bonne page d’inscription.
+          </p>
+          <div class="mosque-results" id="mosqueResults"></div>
+          <p class="empty-state" id="emptyMosques" hidden data-i18n="emptyMosques">
+            Aucune mosquée ne correspond à cette recherche.
+          </p>
+        </div>
+      </section>
+
+      <section class="mosque-hero campaign-surface">
+        <div class="mosque-story">
+          <span class="eyebrow" data-i18n="eyebrow">Journée portes ouvertes</span>
+          <div class="mosque-title-card">
+            <div class="mosque-visual">
+              <img src="assets/open-mosque-logo.jpg" alt="Open Mosque" />
+            </div>
+            <div>
+              <span class="status-pill" id="campaignStatusLabel">Campagne active</span>
+              <h1 id="campaignName">Centre communautaire de Laval</h1>
+              <p class="campaign-location" id="campaignLocation" hidden></p>
+            </div>
+          </div>
+          <p class="hero-lead" data-i18n="heroLead">
+            Invitez un ami, un collègue ou un voisin non musulman à découvrir la
+            mosquée dans un cadre simple, chaleureux et accueillant.
+          </p>
+          <div class="quick-share">
+            <button class="primary-button" id="heroCta" type="button">
+              <span data-i18n="cta">Je participe</span>
+              <span aria-hidden="true">→</span>
+            </button>
+            <button class="outline-button dark" id="whatsappShareButton" type="button" data-i18n="shareWhatsApp">
+              WhatsApp
+            </button>
+            <button class="outline-button dark" id="copyLinkButton" type="button" data-i18n="copyLink">
+              Copier le lien
+            </button>
+          </div>
+          <div class="mosque-meta-grid">
+            <div class="date-block">
+              <span data-i18n="eventDate">Événement</span>
+              <strong id="eventDate">20 SEPT.</strong>
+            </div>
+            <div class="date-block">
+              <span data-i18n="deadline">Engagements ouverts jusqu’au</span>
+              <strong id="deadlineDate">31 août 2026</strong>
+            </div>
+          </div>
+          <p class="microcopy" data-i18n="privacy">
+            Vos coordonnées restent privées et servent seulement à organiser cette journée.
+          </p>
+        </div>
+
+        <aside class="action-panel" id="invitationForm" aria-labelledby="quickFormTitle">
+          <div class="mobile-campaign-context">
+            <span data-i18n="mobileContext">Page de mosquée</span>
+            <strong id="mobileCampaignName">Centre communautaire de Laval</strong>
+            <small id="mobileCampaignLocation" hidden></small>
+          </div>
+          <div class="progress-card">
+            <div class="progress-copy">
+              <strong>
+                <span id="currentCount">0</span>
+                <span data-i18n="of">sur</span>
+                <span id="goalCount">100</span>
+                <span data-i18n="guests">invités</span>
+              </strong>
+              <span id="progressPercent">0%</span>
+            </div>
+            <div
+              class="progress-track"
+              role="progressbar"
+              aria-valuemin="0"
+              aria-valuemax="100"
+              aria-valuenow="0"
+            >
+              <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <p data-i18n="progressHelp">Chaque intention aide la mosquée à savoir quand préparer l’événement.</p>
+          </div>
+
+          <form class="pledge-form quick-pledge-form" id="pledgeForm">
+            <span class="eyebrow" data-i18n="formEyebrow">Participer</span>
+            <h2 id="quickFormTitle" data-i18n="formTitle">Ajoutez votre intention</h2>
+            <label>
+              <span data-i18n="nameLabel">Votre prénom et nom</span>
+              <input
+                id="fullName"
+                name="fullName"
+                type="text"
+                autocomplete="name"
+                placeholder="Ex. Amine Benali"
+                required
+              />
+            </label>
+            <fieldset>
+              <legend data-i18n="countLabel">Combien de personnes pensez-vous inviter?</legend>
+              <small class="form-help" data-i18n="countHelp">Maximum 5 invités par intention.</small>
+              <div class="count-picker">
+                <button type="button" class="count-button" data-count="1">1</button>
+                <button type="button" class="count-button selected" data-count="2">2</button>
+                <button type="button" class="count-button" data-count="3">3</button>
+                <button type="button" class="count-button" data-count="4">4</button>
+                <button type="button" class="count-button" data-count="5">5</button>
+              </div>
+              <input id="guestCount" name="guestCount" type="hidden" value="2" />
+            </fieldset>
+            <label>
+              <span data-i18n="emailLabel">Votre courriel</span>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                autocomplete="email"
+                placeholder="amine@exemple.ca"
+                required
+              />
+            </label>
+            <label class="checkbox-label compact-update">
+              <input id="updates" name="updates" type="checkbox" checked />
+              <span data-i18n="updatesLabel">
+                Recevoir les détails de l’événement.
+              </span>
+            </label>
+            <button class="primary-button full-width" type="submit">
+              <span data-i18n="submit">Ajouter mon intention</span>
+              <span aria-hidden="true">→</span>
+            </button>
+            <p class="closed-message" id="closedMessage" hidden data-i18n="closedMessage">
+              Les inscriptions à cette campagne sont maintenant fermées.
+            </p>
+            <p class="form-note" data-i18n="formNote">
+              Ceci est une intention, pas une réservation définitive.
+            </p>
+            <p class="privacy-note" data-i18n="retentionNotice">
+              Vos informations restent privées.
+            </p>
+          </form>
+
+          <div class="share-toolkit">
+            <div>
+              <strong data-i18n="shareMiniTitle">Partager cette page</strong>
+              <span data-i18n="shareMiniLead">Invitez d’autres frères et sœurs à participer.</span>
+            </div>
+            <button class="text-button" id="toggleQrButton" type="button" data-i18n="showQr">
+              Afficher le QR
+            </button>
+            <a
+              class="text-button poster-link"
+              id="posterLink"
+              href="poster.html?campaign=laval"
+              target="_blank"
+              data-i18n="posterLink"
+            >
+              Affiche
+            </a>
+          </div>
+          <div class="qr-card compact-qr" id="qrPanel" hidden>
+            <div id="qrCode" aria-label="Code QR de la campagne"></div>
+            <span id="qrLabel">OPENMOSQUE · LAVAL</span>
+          </div>
+        </aside>
+      </section>
+
+      <section class="support-section campaign-surface">
+        <div class="section-heading">
+          <span class="eyebrow" data-i18n="howEyebrow">Comment ça marche</span>
+          <h2 data-i18n="howTitle">Simple, rapide, utile pour organiser.</h2>
+        </div>
+        <div class="support-grid">
+          <article class="support-card">
+            <span class="step-number">01</span>
+            <h3 data-i18n="step1Title">Inscrivez votre intention</h3>
+            <p data-i18n="step1Body">
+              Ajoutez votre nom et le nombre de personnes que vous pensez inviter.
+            </p>
+          </article>
+          <article class="support-card">
+            <span class="step-number">02</span>
+            <h3 data-i18n="step2Title">Partagez à la communauté</h3>
+            <p data-i18n="step2Body">
+              Envoyez le lien ou le QR à des frères et sœurs qui peuvent aussi inviter.
+            </p>
+          </article>
+          <article class="support-card">
+            <span class="step-number">03</span>
+            <h3 data-i18n="step3Title">Préparez l’Open Mosque</h3>
+            <p data-i18n="step3Body">
+              Quand l’objectif approche, la mosquée peut préparer l’accueil, les échanges et le repas.
+            </p>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <a class="brand footer-brand" href="#">
+        <span class="brand-mark" aria-hidden="true">
+          <img src="assets/open-mosque-logo.jpg" alt="" />
+        </span>
+        <span class="brand-word">OPEN MOSQUE</span>
+      </a>
+      <p data-i18n="footer">Une initiative locale pour mieux se connaître.</p>
+    </footer>
+
+    <dialog id="successDialog">
+      <button class="dialog-close" data-close="successDialog" aria-label="Fermer">×</button>
+      <div class="success-icon">✓</div>
+      <span class="eyebrow" data-i18n="thankEyebrow">Merci</span>
+      <h2 data-i18n="thankTitle">Votre intention est enregistrée.</h2>
+      <p data-i18n="thankBody">
+        Nous vous écrirons lorsque les détails de la journée portes ouvertes
+        seront confirmés.
+      </p>
+      <button class="primary-button full-width" data-close="successDialog" type="button" data-i18n="close">
+        Fermer
+      </button>
+    </dialog>
+
+    <dialog id="adminDialog" class="admin-dialog">
+      <button class="dialog-close" data-close="adminDialog" aria-label="Fermer">×</button>
+      <div id="adminLogin">
+        <span class="eyebrow" data-i18n="adminEyebrow">Espace responsable</span>
+        <h2 data-i18n="adminLoginTitle">Gérer la campagne</h2>
+        <p data-i18n="adminLoginLead">
+          Connectez-vous avec le compte responsable de votre mosquée.
+        </p>
+        <form id="adminLoginForm" class="admin-login-form">
+          <label>
+            <span data-i18n="adminEmail">Courriel</span>
+            <input id="adminEmail" type="email" autocomplete="username" required />
+          </label>
+          <label>
+            <span data-i18n="adminPassword">Mot de passe</span>
+            <input id="adminPassword" type="password" autocomplete="current-password" required />
+          </label>
+          <p class="error-message" id="adminError" hidden data-i18n="invalidCode">
+            Code incorrect.
+          </p>
+          <button class="primary-button full-width" type="submit" data-i18n="connect">
+            Se connecter
+          </button>
+        </form>
+      </div>
+
+      <div id="adminPanel" hidden>
+        <div class="admin-topline">
+          <div>
+            <span class="eyebrow" data-i18n="dashboard">Tableau de bord</span>
+            <h2 data-i18n="campaignSettings">Gestion des mosquées</h2>
+          </div>
+          <button class="text-button admin-signout" id="adminSignOut" type="button" data-i18n="signOut">
+            Se déconnecter
+          </button>
+        </div>
+        <section class="campaign-manager">
+          <label class="campaign-picker">
+            <span data-i18n="selectCampaign">Mosquée en cours</span>
+            <small data-i18n="selectCampaignHelp">Choisis la mosquée que tu veux modifier.</small>
+            <select id="campaignSelect"></select>
+          </label>
+        </section>
+        <section class="preset-library" id="presetLibrary" hidden>
+          <div class="preset-heading">
+            <div>
+              <span class="eyebrow" data-i18n="presetEyebrow">Ajouter une mosquée</span>
+              <h3 data-i18n="presetTitle">Pars d’une mosquée déjà trouvée</h3>
+              <p data-i18n="presetLead">
+                Elle sera ajoutée en brouillon privé. Elle ne sera visible publiquement que lorsque tu l’actives.
+              </p>
+            </div>
+            <label class="preset-search">
+              <span data-i18n="presetSearch">Rechercher dans les presets</span>
+              <input id="presetSearch" type="search" placeholder="Laval, Montréal, Terrebonne..." />
+            </label>
+          </div>
+          <div class="preset-results" id="presetResults"></div>
+          <button class="outline-button full-width" id="newCampaignButton" type="button" data-i18n="newCampaign">
+            Créer une mosquée vide
+          </button>
+        </section>
+        <div class="campaign-actions">
+          <button class="outline-button dark" id="duplicateRoundButton" type="button" data-i18n="duplicateRound">
+            Créer le prochain round
+          </button>
+          <a class="outline-button dark" id="publicCampaignLink" href="#" target="_blank" data-i18n="openPublicPage">
+            Ouvrir la page publique
+          </a>
+          <button class="danger-button" id="deleteCampaignButton" type="button" data-i18n="deleteCampaign">
+            Supprimer la mosquée
+          </button>
+        </div>
+        <section class="organizer-manager" id="organizerManager">
+          <div>
+            <span class="eyebrow" data-i18n="localOrganizer">Responsable local</span>
+            <p data-i18n="localOrganizerHelp">
+              Donnez à une personne l’accès à cette mosquée seulement.
+            </p>
+          </div>
+          <div class="organizer-controls">
+            <input id="organizerEmail" type="email" placeholder="responsable@mosquee.ca" />
+            <button class="outline-button" id="assignOrganizerButton" type="button" data-i18n="assignOrganizer">
+              Donner l’accès
+            </button>
+            <button class="text-button remove-organizer" id="removeOrganizerButton" type="button" data-i18n="removeOrganizer">
+              Retirer l’accès
+            </button>
+          </div>
+          <p class="organizer-status" id="organizerStatus"></p>
+        </section>
+        <div class="admin-stats">
+          <div><strong id="adminPledges">0</strong><span data-i18n="intentions">intentions</span></div>
+          <div><strong id="adminGuests">0</strong><span data-i18n="expectedGuests">invités prévus</span></div>
+          <div><strong id="adminRemaining">100</strong><span data-i18n="remaining">avant l’objectif</span></div>
+        </div>
+        <form id="settingsForm" class="settings-form">
+          <div class="settings-heading">
+            <span class="eyebrow" data-i18n="settingsEyebrow">Réglages</span>
+            <h3 data-i18n="settingsTitle">Informations de cette mosquée</h3>
+            <p data-i18n="settingsLead">
+              Ces informations servent à identifier la mosquée. Décoche “Visible publiquement” tant que tu n’as pas l’accord.
+            </p>
+          </div>
+          <div class="field-row">
+            <label>
+              <span data-i18n="campaignSlug">Lien public</span>
+              <small data-i18n="campaignSlugHelp">Exemple: laval donne une page ?campaign=laval.</small>
+              <input id="settingSlug" type="text" pattern="[a-z0-9]+(?:-[a-z0-9]+)*" required />
+            </label>
+            <label class="status-checkbox">
+              <span data-i18n="campaignStatus">Visibilité</span>
+              <span class="checkbox-label compact">
+                <input id="settingActive" type="checkbox" />
+                <span data-i18n="campaignActive">Visible publiquement</span>
+              </span>
+            </label>
+          </div>
+          <label>
+            <span data-i18n="mosqueName">Nom de la mosquée</span>
+            <input id="settingName" type="text" required />
+          </label>
+          <div class="field-row">
+            <label>
+              <span data-i18n="mosqueCity">Ville</span>
+              <input id="settingCity" type="text" />
+            </label>
+            <label>
+              <span data-i18n="mosqueWebsite">Site web</span>
+              <input id="settingWebsite" type="url" placeholder="https://..." />
+            </label>
+          </div>
+          <label>
+            <span data-i18n="mosqueAddress">Adresse</span>
+            <input id="settingAddress" type="text" />
+          </label>
+          <section class="photo-manager">
+            <div>
+              <span data-i18n="mosquePhoto">Photo de la mosquée</span>
+              <p data-i18n="mosquePhotoHelp">
+                Ajoutez une photo qui apparaîtra sur la page publique et dans la recherche.
+              </p>
+            </div>
+            <div class="photo-controls">
+              <img id="settingPhotoPreview" src="assets/open-mosque-logo.jpg" alt="" />
+              <label class="photo-upload">
+                <span data-i18n="choosePhoto">Choisir une photo</span>
+                <input id="settingPhotoFile" type="file" accept="image/png,image/jpeg,image/webp" />
+              </label>
+              <button class="text-button remove-photo" id="removePhotoButton" type="button" data-i18n="removePhoto">
+                Retirer la photo
+              </button>
+            </div>
+            <input id="settingPhotoUrl" type="hidden" />
+            <p class="photo-status" id="photoStatus"></p>
+          </section>
+          <div class="field-row">
+            <label>
+              <span data-i18n="goal">Objectif d’invités</span>
+              <input id="settingGoal" type="number" min="1" required />
+            </label>
+            <label>
+              <span data-i18n="eventDateLabel">Date de l’événement</span>
+              <input id="settingEventDate" type="date" required />
+            </label>
+          </div>
+          <label>
+            <span data-i18n="deadlineLabel">Date limite d’inscription</span>
+            <span class="checkbox-label compact deadline-toggle">
+              <input id="settingHasDeadline" type="checkbox" checked />
+              <span data-i18n="hasDeadline">Mettre une date limite</span>
+            </span>
+            <input id="settingDeadline" type="date" />
+            <small data-i18n="deadlineHelp">Si décoché, les inscriptions restent ouvertes tant que la campagne est visible.</small>
+          </label>
+          <label>
+            <span data-i18n="foodInfo">Informations sur le repas ou les contributions</span>
+            <textarea id="settingFood" rows="3"></textarea>
+          </label>
+          <button class="primary-button full-width" type="submit" data-i18n="save">
+            Enregistrer les changements
+          </button>
+        </form>
+        <section class="pledges-section" aria-labelledby="pledgesTitle">
+          <div class="pledges-heading">
+            <div>
+              <span class="eyebrow" data-i18n="registrations">Inscriptions</span>
+              <h3 id="pledgesTitle" data-i18n="registrationsTitle">Personnes engagées</h3>
+            </div>
+            <span class="privacy-badge" data-i18n="privateData">Données confidentielles</span>
+          </div>
+          <p class="retention-warning" id="retentionWarning"></p>
+          <div class="pledges-table-wrap">
+            <table class="pledges-table">
+              <thead>
+                <tr>
+                  <th data-i18n="participant">Participant</th>
+                  <th data-i18n="guestCountAdmin">Invités</th>
+                  <th data-i18n="updatesAdmin">Nouvelles</th>
+                  <th data-i18n="registeredAt">Inscription</th>
+                </tr>
+              </thead>
+              <tbody id="pledgesTableBody"></tbody>
+            </table>
+            <p class="empty-state" id="emptyPledges" data-i18n="emptyPledges">
+              Aucune intention enregistrée pour le moment.
+            </p>
+          </div>
+        </section>
+      </div>
+    </dialog>
+
+    <div class="toast" id="toast" role="status"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="config.js"></script>
+    <script src="mosque-presets.js?v=1"></script>
+    <script type="module" src="app.js?v=13"></script>
+  </body>
+</html>
