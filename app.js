@@ -2,7 +2,7 @@ import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 
 const config = window.OPEN_MOSQUE_CONFIG || {};
 const queryCampaignSlug = new URLSearchParams(window.location.search).get("campaign");
-const defaultCampaignSlug = config.campaignSlug || "laval";
+const defaultCampaignSlug = config.campaignSlug || "";
 const campaignSlug = queryCampaignSlug || defaultCampaignSlug;
 const isDirectoryMode = !queryCampaignSlug;
 const isConfigured = Boolean(
@@ -30,8 +30,8 @@ const mosquePresets = Array.isArray(window.OPEN_MOSQUE_PRESETS)
 
 const defaults = {
   id: null,
-  slug: campaignSlug,
-  name: "Centre communautaire de Laval",
+  slug: campaignSlug || "open-mosque",
+  name: "Open Mosque",
   goal: 100,
   eventDate: "2026-09-20",
   deadline: "2026-08-31",
@@ -62,6 +62,8 @@ const translations = {
     directoryTitle: "Mosquées participantes",
     directoryHint: "Chaque carte mène directement à la bonne page d’inscription.",
     emptyMosques: "Aucune mosquée ne correspond à cette recherche.",
+    noActiveCampaigns:
+      "Aucune campagne active pour l'instant. Revenez bientôt, ou ouvrez l'espace responsable pour préparer une mosquée.",
     chooseMosque: "Participer",
     directoryLoadError: "Impossible de charger les mosquées pour le moment.",
     mobileContext: "Page de mosquée",
@@ -239,6 +241,8 @@ const translations = {
     directoryTitle: "Participating mosques",
     directoryHint: "Each card takes you directly to the right registration page.",
     emptyMosques: "No mosque matches this search.",
+    noActiveCampaigns:
+      "No active campaign yet. Check back soon, or open the organizer area to prepare a mosque.",
     chooseMosque: "Take part",
     directoryLoadError: "The mosque list could not be loaded right now.",
     mobileContext: "Mosque page",
@@ -580,6 +584,9 @@ function renderDirectory() {
 
   results.replaceChildren();
   document.getElementById("directoryCount").textContent = String(filtered.length);
+  empty.textContent = publicCampaigns.length
+    ? translations[language].emptyMosques
+    : translations[language].noActiveCampaigns;
   empty.hidden = filtered.length > 0;
 
   filtered.forEach((item) => {
@@ -810,6 +817,12 @@ function renderAdminPledges() {
 }
 
 async function loadPublicCampaign() {
+  if (!campaignSlug) {
+    publicCampaignAvailable = false;
+    render();
+    return;
+  }
+
   if (!supabase) {
     render();
     return;
@@ -869,19 +882,8 @@ async function loadPublicCampaignDirectory() {
   }
 
   console.warn(error);
-  const { data: fallbackData, error: fallbackError } = await supabase.rpc("get_public_campaign", {
-    p_slug: defaultCampaignSlug,
-  });
-  const fallbackRow = Array.isArray(fallbackData) ? fallbackData[0] : fallbackData;
-
-  if (fallbackError || !fallbackRow) {
-    publicCampaigns = [];
-    showToast(translations[language].directoryLoadError);
-    render();
-    return;
-  }
-
-  publicCampaigns = [normalizePublicCampaign(fallbackRow)];
+  publicCampaigns = [];
+  showToast(translations[language].directoryLoadError);
   render();
 }
 
