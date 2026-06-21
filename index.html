@@ -15,7 +15,7 @@
       href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles.css?v=2" />
   </head>
   <body>
     <div class="top-pattern" aria-hidden="true"></div>
@@ -328,8 +328,8 @@
         </div>
         <section class="campaign-manager">
           <label class="campaign-picker">
-            <span data-i18n="selectCampaign">Mosquée en cours</span>
-            <small data-i18n="selectCampaignHelp">Choisis la mosquée que tu veux modifier.</small>
+            <span data-i18n="selectCampaign">Mosquées en préparation</span>
+            <small data-i18n="selectCampaignHelp">Choisis le brouillon ou la campagne que tu veux modifier.</small>
             <select id="campaignSelect"></select>
           </label>
         </section>
@@ -354,10 +354,10 @@
         </section>
         <div class="campaign-actions">
           <button class="outline-button dark" id="duplicateRoundButton" type="button" data-i18n="duplicateRound">
-            Créer le prochain round
+            Nouvelle édition pour cette mosquée
           </button>
           <a class="outline-button dark" id="publicCampaignLink" href="#" target="_blank" data-i18n="openPublicPage">
-            Ouvrir la page publique
+            Prévisualiser la page
           </a>
           <button class="danger-button" id="deleteCampaignButton" type="button" data-i18n="deleteCampaign">
             Supprimer la mosquée
@@ -507,6 +507,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="config.js"></script>
     <script src="mosque-presets.js?v=1"></script>
-    <script type="module" src="app.js?v=14"></script>
+    <script type="module" src="app.js?v=15"></script>
   </body>
 </html>

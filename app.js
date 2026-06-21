@@ -135,10 +135,13 @@ const translations = {
     connect: "Se connecter",
     dashboard: "Tableau de bord",
     campaignSettings: "Gestion des mosquées",
-    selectCampaign: "Mosquée / round en cours",
-    selectCampaignHelp: "Choisis la mosquée ou le round que tu veux modifier.",
+    selectCampaign: "Mosquées en préparation",
+    selectCampaignHelp:
+      "Ce sont tes brouillons et tes campagnes. Une mosquée apparaît publiquement seulement si tu coches « Visible publiquement ».",
     newCampaign: "Créer une mosquée vide",
-    duplicateRound: "Créer le prochain round",
+    duplicateRound: "Nouvelle édition pour cette mosquée",
+    draftStatus: "Brouillon privé",
+    publicStatus: "Visible publiquement",
     presetEyebrow: "Ajouter une mosquée",
     presetTitle: "Pars d’une mosquée déjà trouvée",
     presetLead:
@@ -151,7 +154,7 @@ const translations = {
     mosqueCity: "Ville",
     mosqueAddress: "Adresse",
     mosqueWebsite: "Site web",
-    openPublicPage: "Ouvrir la page publique",
+    openPublicPage: "Prévisualiser la page",
     deleteCampaign: "Supprimer la mosquée",
     localOrganizer: "Responsable local",
     localOrganizerHelp: "Donnez à une personne l’accès à cette mosquée seulement.",
@@ -212,7 +215,7 @@ const translations = {
     slugInvalid: "Le lien public doit contenir uniquement des minuscules, chiffres et tirets.",
     campaignCreated: "La mosquée vide a été créée en brouillon.",
     roundCreated:
-      "Nouveau round créé en brouillon. Le compteur repart à zéro et les anciens courriels peuvent se réinscrire.",
+      "Nouvelle édition créée en brouillon privé. Le compteur repart à zéro et les anciens courriels peuvent se réinscrire.",
     campaignDeleted: "La mosquée et ses engagements ont été supprimés.",
     deleteConfirm:
       "Supprimer définitivement cette mosquée et tous ses engagements? Cette action est irréversible.",
@@ -313,10 +316,13 @@ const translations = {
     connect: "Sign in",
     dashboard: "Dashboard",
     campaignSettings: "Mosque management",
-    selectCampaign: "Current mosque / round",
-    selectCampaignHelp: "Choose the mosque or round you want to edit.",
+    selectCampaign: "Mosques in preparation",
+    selectCampaignHelp:
+      "These are your drafts and campaigns. A mosque appears publicly only when “Publicly visible” is checked.",
     newCampaign: "Create blank mosque",
-    duplicateRound: "Create next round",
+    duplicateRound: "New edition for this mosque",
+    draftStatus: "Private draft",
+    publicStatus: "Publicly visible",
     presetEyebrow: "Add a mosque",
     presetTitle: "Start from a mosque already found",
     presetLead:
@@ -329,7 +335,7 @@ const translations = {
     mosqueCity: "City",
     mosqueAddress: "Address",
     mosqueWebsite: "Website",
-    openPublicPage: "Open public page",
+    openPublicPage: "Preview page",
     deleteCampaign: "Delete mosque",
     localOrganizer: "Local organizer",
     localOrganizerHelp: "Give one person access to this mosque only.",
@@ -390,7 +396,7 @@ const translations = {
     slugInvalid: "The public link may contain only lowercase letters, numbers and hyphens.",
     campaignCreated: "The blank mosque was created as a draft.",
     roundCreated:
-      "New round created as a draft. The counter starts from zero and previous emails can register again.",
+      "New edition created as a private draft. The counter starts from zero and previous emails can register again.",
     campaignDeleted: "The mosque and all its pledges were deleted.",
     deleteConfirm:
       "Permanently delete this mosque and all its pledges? This action cannot be undone.",
@@ -463,6 +469,10 @@ function renderQrCode() {
 
 function campaignImageUrl(item = campaign) {
   return item.photoUrl || fallbackCampaignImage;
+}
+
+function adminCampaignStatusLabel(row) {
+  return row.active ? translations[language].publicStatus : translations[language].draftStatus;
 }
 
 function mosqueLocationText(item) {
@@ -941,7 +951,7 @@ async function loadAdminCampaigns(preferredId = null) {
   campaignRows.forEach((row) => {
     const option = document.createElement("option");
     option.value = row.id;
-    option.textContent = `${row.name} (${row.slug})`;
+    option.textContent = `${row.name} - ${adminCampaignStatusLabel(row)}`;
     select.append(option);
   });
 

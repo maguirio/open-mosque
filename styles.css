@@ -1367,6 +1367,10 @@ dialog p {
   border-radius: 5px;
 }
 
+.campaign-picker select {
+  width: 100%;
+}
+
 .campaign-picker small,
 .settings-form small {
   display: block;
@@ -1763,6 +1767,31 @@ dialog p {
     padding: 38px 24px 28px;
   }
 
+  .admin-dialog {
+    width: calc(100% - 18px);
+    max-height: calc(100vh - 18px);
+    padding: 34px 18px 22px;
+    border-radius: 18px;
+  }
+
+  .admin-dialog h2 {
+    font-size: 28px;
+  }
+
+  .campaign-manager {
+    padding: 16px;
+  }
+
+  .campaign-picker select {
+    min-height: 48px;
+    font-size: 14px;
+  }
+
+  .campaign-actions .outline-button,
+  .campaign-actions .danger-button {
+    width: 100%;
+  }
+
   .admin-stats {
     grid-template-columns: 1fr;
   }
@@ -1791,6 +1820,14 @@ dialog p {
   .campaign-actions {
     align-items: stretch;
     flex-direction: column;
+  }
+
+  .campaign-actions {
+    gap: 10px;
+  }
+
+  .preset-heading {
+    grid-template-columns: 1fr;
   }
 
   .organizer-controls {
