@@ -381,6 +381,57 @@
           </div>
           <p class="organizer-status" id="organizerStatus"></p>
         </section>
+        <section class="mobilization-manager" aria-labelledby="mobilizationTitle">
+          <div class="mobilization-heading">
+            <div>
+              <span class="eyebrow" data-i18n="mobilizationEyebrow">Mobilisation</span>
+              <h3 id="mobilizationTitle" data-i18n="mobilizationTitle">Phases et message aux participants</h3>
+              <p data-i18n="mobilizationLead">
+                Quand l'objectif est atteint, envoie un courriel clair aux participants qui ont demand&eacute; les nouvelles.
+              </p>
+            </div>
+            <label>
+              <span data-i18n="campaignPhase">Phase</span>
+              <select id="campaignPhase">
+                <option value="draft" data-i18n="phaseDraft">Brouillon</option>
+                <option value="active" data-i18n="phaseActive">Inscription ouverte</option>
+                <option value="goal_reached" data-i18n="phaseGoalReached">Objectif atteint</option>
+                <option value="confirmed" data-i18n="phaseConfirmed">&Eacute;v&eacute;nement confirm&eacute;</option>
+                <option value="completed" data-i18n="phaseCompleted">Termin&eacute;</option>
+              </select>
+            </label>
+          </div>
+          <div class="mobilization-grid">
+            <label>
+              <span data-i18n="messageLanguage">Langue du courriel</span>
+              <select id="messageLanguage">
+                <option value="bilingual" data-i18n="messageBilingual">Fran&ccedil;ais + anglais</option>
+                <option value="fr" data-i18n="messageFrench">Fran&ccedil;ais</option>
+                <option value="en" data-i18n="messageEnglish">Anglais</option>
+              </select>
+            </label>
+            <label>
+              <span data-i18n="messageSubject">Sujet</span>
+              <input id="messageSubject" type="text" maxlength="180" />
+            </label>
+          </div>
+          <label>
+            <span data-i18n="messageBody">Message</span>
+            <textarea id="messageBody" rows="6"></textarea>
+          </label>
+          <div class="mobilization-actions">
+            <button class="outline-button dark" id="refreshMessageButton" type="button" data-i18n="refreshMessage">
+              Reg&eacute;n&eacute;rer le message
+            </button>
+            <button class="primary-button" id="sendCampaignMessageButton" type="button" data-i18n="sendMessage">
+              Envoyer aux participants
+            </button>
+          </div>
+          <p class="mobilization-note" data-i18n="mobilizationNote">
+            Les courriels sont envoy&eacute;s seulement aux personnes qui ont coch&eacute; les nouvelles. Aucun mot de passe n'est demand&eacute; aux participants.
+          </p>
+          <p class="mobilization-status" id="messageStatus"></p>
+        </section>
         <div class="admin-stats">
           <div><strong id="adminPledges">0</strong><span data-i18n="intentions">intentions</span></div>
           <div><strong id="adminGuests">0</strong><span data-i18n="expectedGuests">invités prévus</span></div>
@@ -507,6 +558,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="config.js"></script>
     <script src="mosque-presets.js?v=1"></script>
-    <script type="module" src="app.js?v=15"></script>
+    <script type="module" src="app.js?v=16"></script>
   </body>
 </html>

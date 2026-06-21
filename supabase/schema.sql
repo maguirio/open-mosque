@@ -15,6 +15,8 @@ create table if not exists public.campaigns (
   city text,
   website_url text,
   active boolean not null default true,
+  phase text not null default 'draft'
+    check (phase in ('draft', 'active', 'goal_reached', 'confirmed', 'completed')),
   admin_user_id uuid references auth.users(id) on delete set null,
   admin_email extensions.citext,
   created_at timestamptz not null default now(),
@@ -31,6 +33,16 @@ alter table public.campaigns
   add column if not exists address text,
   add column if not exists city text,
   add column if not exists website_url text;
+
+alter table public.campaigns
+  add column if not exists phase text not null default 'draft';
+
+alter table public.campaigns
+  drop constraint if exists campaigns_phase_check;
+
+alter table public.campaigns
+  add constraint campaigns_phase_check
+  check (phase in ('draft', 'active', 'goal_reached', 'confirmed', 'completed'));
 
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values (
@@ -77,17 +89,37 @@ create table if not exists public.pending_campaign_admins (
   created_at timestamptz not null default now()
 );
 
+create table if not exists public.campaign_messages (
+  id uuid primary key default gen_random_uuid(),
+  campaign_id uuid not null references public.campaigns(id) on delete cascade,
+  sent_by uuid references auth.users(id) on delete set null,
+  subject text not null check (char_length(subject) between 3 and 180),
+  body text not null check (char_length(body) between 10 and 6000),
+  language text not null default 'bilingual'
+    check (language in ('fr', 'en', 'bilingual')),
+  recipient_count integer not null default 0 check (recipient_count >= 0),
+  provider text not null default 'resend',
+  status text not null default 'queued'
+    check (status in ('queued', 'sent', 'failed')),
+  error_message text,
+  created_at timestamptz not null default now()
+);
+
 create index if not exists pledges_campaign_id_idx
   on public.pledges(campaign_id);
 
 create index if not exists pledge_attempts_rate_idx
   on public.pledge_attempts(campaign_id, request_fingerprint, created_at desc);
 
+create index if not exists campaign_messages_campaign_id_idx
+  on public.campaign_messages(campaign_id, created_at desc);
+
 alter table public.campaigns enable row level security;
 alter table public.pledges enable row level security;
 alter table public.pledge_attempts enable row level security;
 alter table public.super_admins enable row level security;
 alter table public.pending_campaign_admins enable row level security;
+alter table public.campaign_messages enable row level security;
 
 create or replace function public.is_super_admin()
 returns boolean
@@ -166,6 +198,42 @@ create policy "Organizers can read campaign pledges"
       select 1
       from public.campaigns
       where campaigns.id = pledges.campaign_id
+        and (
+          campaigns.admin_user_id = (select auth.uid())
+          or (select public.is_super_admin())
+        )
+    )
+  );
+
+drop policy if exists "Organizers can read campaign messages"
+  on public.campaign_messages;
+create policy "Organizers can read campaign messages"
+  on public.campaign_messages
+  for select
+  to authenticated
+  using (
+    exists (
+      select 1
+      from public.campaigns
+      where campaigns.id = campaign_messages.campaign_id
+        and (
+          campaigns.admin_user_id = (select auth.uid())
+          or (select public.is_super_admin())
+        )
+    )
+  );
+
+drop policy if exists "Organizers can create campaign messages"
+  on public.campaign_messages;
+create policy "Organizers can create campaign messages"
+  on public.campaign_messages
+  for insert
+  to authenticated
+  with check (
+    exists (
+      select 1
+      from public.campaigns
+      where campaigns.id = campaign_messages.campaign_id
         and (
           campaigns.admin_user_id = (select auth.uid())
           or (select public.is_super_admin())
@@ -617,11 +685,14 @@ revoke all on public.super_admins from anon;
 revoke all on public.super_admins from authenticated;
 revoke all on public.pending_campaign_admins from anon;
 revoke all on public.pending_campaign_admins from authenticated;
+revoke all on public.campaign_messages from anon;
+revoke all on public.campaign_messages from authenticated;
 
 grant select, insert, update, delete on public.campaigns to authenticated;
 grant select on public.pledges to authenticated;
 grant select on public.super_admins to authenticated;
 grant select on public.pending_campaign_admins to authenticated;
+grant select, insert on public.campaign_messages to authenticated;
 
 revoke all on function public.get_public_campaign(text) from public;
 revoke all on function public.list_public_campaigns() from public;

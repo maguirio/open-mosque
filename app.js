@@ -41,6 +41,7 @@ const defaults = {
   city: "",
   websiteUrl: "",
   active: true,
+  phase: "draft",
   adminEmail: "",
   pledgeCount: 0,
   guestTotal: 0,
@@ -185,6 +186,36 @@ const translations = {
     campaignSlugHelp: "Exemple: laval donne une page ?campaign=laval.",
     campaignStatus: "Visibilité",
     campaignActive: "Visible publiquement",
+    mobilizationEyebrow: "Mobilisation",
+    mobilizationTitle: "Phases et message aux participants",
+    mobilizationLead:
+      "Quand l'objectif est atteint, envoie un courriel clair aux participants qui ont demande les nouvelles.",
+    campaignPhase: "Phase",
+    phaseDraft: "Brouillon",
+    phaseActive: "Inscription ouverte",
+    phaseGoalReached: "Objectif atteint",
+    phaseConfirmed: "Evenement confirme",
+    phaseCompleted: "Termine",
+    messageLanguage: "Langue du courriel",
+    messageBilingual: "Francais + anglais",
+    messageFrench: "Francais",
+    messageEnglish: "Anglais",
+    messageSubject: "Sujet",
+    messageBody: "Message",
+    refreshMessage: "Regenerer le message",
+    sendMessage: "Envoyer aux participants",
+    mobilizationNote:
+      "Les courriels sont envoyes seulement aux personnes qui ont coche les nouvelles. Aucun mot de passe n'est demande aux participants.",
+    messageConfirm: "Envoyer ce courriel aux participants qui ont demande les nouvelles?",
+    messageSubjectTemplate: "Mise a jour Open Mosque - {{mosque}}",
+    messageBodyTemplate:
+      "Assalamu alaykum,\n\nMerci d'avoir inscrit votre intention pour {{mosque}}. Nous sommes maintenant a {{guests}} invites prevus sur un objectif de {{goal}}.\n\nProchaine etape: {{phase}}.\nDate de l'evenement: {{eventDate}}.\n\n{{foodInfo}}\n\nVous pouvez partager la page avec d'autres freres et soeurs ici:\n{{url}}\n\nQu'Allah mette la baraka dans cette initiative.",
+    messageSending: "Envoi en cours...",
+    messageSent: "Courriel envoye a {{count}} participant(s).",
+    messageNoRecipients: "Aucun participant n'a demande les nouvelles pour le moment.",
+    messageProviderMissing:
+      "Resend n'est pas encore configure dans Supabase. Ajoute RESEND_API_KEY et OPEN_MOSQUE_FROM_EMAIL.",
+    messageSendError: "Le courriel n'a pas pu etre envoye. Reessayez.",
     intentions: "intentions",
     expectedGuests: "invités prévus",
     remaining: "avant l’objectif",
@@ -366,6 +397,36 @@ const translations = {
     campaignSlugHelp: "Example: laval gives a ?campaign=laval page.",
     campaignStatus: "Visibility",
     campaignActive: "Publicly visible",
+    mobilizationEyebrow: "Mobilization",
+    mobilizationTitle: "Phases and participant message",
+    mobilizationLead:
+      "When the goal is reached, send a clear email to participants who asked for updates.",
+    campaignPhase: "Phase",
+    phaseDraft: "Draft",
+    phaseActive: "Registration open",
+    phaseGoalReached: "Goal reached",
+    phaseConfirmed: "Event confirmed",
+    phaseCompleted: "Completed",
+    messageLanguage: "Email language",
+    messageBilingual: "French + English",
+    messageFrench: "French",
+    messageEnglish: "English",
+    messageSubject: "Subject",
+    messageBody: "Message",
+    refreshMessage: "Regenerate message",
+    sendMessage: "Send to participants",
+    mobilizationNote:
+      "Emails are sent only to people who opted into updates. Participants never need a password.",
+    messageConfirm: "Send this email to participants who asked for updates?",
+    messageSubjectTemplate: "Open Mosque update - {{mosque}}",
+    messageBodyTemplate:
+      "Assalamu alaykum,\n\nThank you for recording your intention for {{mosque}}. We are now at {{guests}} expected guests out of a goal of {{goal}}.\n\nNext step: {{phase}}.\nEvent date: {{eventDate}}.\n\n{{foodInfo}}\n\nYou can share the page with other brothers and sisters here:\n{{url}}\n\nMay Allah place barakah in this initiative.",
+    messageSending: "Sending...",
+    messageSent: "Email sent to {{count}} participant(s).",
+    messageNoRecipients: "No participant has asked for updates yet.",
+    messageProviderMissing:
+      "Resend is not configured in Supabase yet. Add RESEND_API_KEY and OPEN_MOSQUE_FROM_EMAIL.",
+    messageSendError: "The email could not be sent. Please try again.",
     intentions: "pledges",
     expectedGuests: "expected guests",
     remaining: "before the goal",
@@ -475,6 +536,46 @@ function adminCampaignStatusLabel(row) {
   return row.active ? translations[language].publicStatus : translations[language].draftStatus;
 }
 
+function campaignPhaseLabel(phase = campaign.phase) {
+  const labels = {
+    draft: translations[language].phaseDraft,
+    active: translations[language].phaseActive,
+    goal_reached: translations[language].phaseGoalReached,
+    confirmed: translations[language].phaseConfirmed,
+    completed: translations[language].phaseCompleted,
+  };
+  return labels[phase] || labels.draft;
+}
+
+function renderTemplate(template, values) {
+  return template.replace(/\{\{(\w+)\}\}/g, (_, key) => values[key] ?? "");
+}
+
+function defaultMessageValues() {
+  return {
+    mosque: campaign.name,
+    guests: String(campaign.guestTotal || 0),
+    goal: String(campaign.goal || 0),
+    phase: campaignPhaseLabel(),
+    eventDate: campaign.eventDate ? formatDate(campaign.eventDate) : "",
+    foodInfo: campaign.foodInfo || "",
+    url: currentCampaignUrl(),
+  };
+}
+
+function populateMessageTemplate(force = false) {
+  const subject = document.getElementById("messageSubject");
+  const body = document.getElementById("messageBody");
+  if (!subject || !body) return;
+  const values = defaultMessageValues();
+  if (force || !subject.value.trim()) {
+    subject.value = renderTemplate(translations[language].messageSubjectTemplate, values);
+  }
+  if (force || !body.value.trim()) {
+    body.value = renderTemplate(translations[language].messageBodyTemplate, values);
+  }
+}
+
 function mosqueLocationText(item) {
   return [item.address, item.city].filter(Boolean).join(" · ");
 }
@@ -516,12 +617,13 @@ async function insertCampaign(row) {
     .insert(row)
     .select("id")
     .single();
-  if (["photo_url", "address", "city", "website_url"].some((field) => error?.message?.includes(field))) {
+  if (["photo_url", "address", "city", "website_url", "phase"].some((field) => error?.message?.includes(field))) {
     const fallbackRow = { ...row };
     delete fallbackRow.photo_url;
     delete fallbackRow.city;
     delete fallbackRow.address;
     delete fallbackRow.website_url;
+    delete fallbackRow.phase;
     const fallback = await supabase
       .from("campaigns")
       .insert(fallbackRow)
@@ -692,6 +794,9 @@ function render() {
   document.getElementById("settingAddress").value = campaign.address || "";
   document.getElementById("settingWebsite").value = campaign.websiteUrl || "";
   document.getElementById("settingActive").checked = campaign.active;
+  document.getElementById("campaignPhase").value = campaign.phase || (campaign.active ? "active" : "draft");
+  populateMessageTemplate(false);
+  document.getElementById("messageStatus").textContent = "";
   document.getElementById("settingGoal").value = campaign.goal;
   document.getElementById("settingEventDate").value = campaign.eventDate;
   document.getElementById("settingHasDeadline").checked = Boolean(campaign.deadline);
@@ -762,6 +867,7 @@ function normalizeCampaign(row) {
     city: row.city || "",
     websiteUrl: row.website_url || "",
     active: row.active !== false,
+    phase: row.phase || (row.active === false ? "draft" : "active"),
     adminEmail: row.admin_email || "",
     pledgeCount: Number(row.pledge_count || 0),
     guestTotal: Number(row.guest_total || 0),
@@ -929,10 +1035,10 @@ async function loadAdminCampaigns(preferredId = null) {
 
   let { data: campaignRows, error: campaignError } = await supabase
     .from("campaigns")
-    .select("id, slug, name, goal, event_date, deadline, food_info, photo_url, address, city, website_url, active, admin_email")
+    .select("id, slug, name, goal, event_date, deadline, food_info, photo_url, address, city, website_url, active, phase, admin_email")
     .order("name", { ascending: true });
 
-  if (["photo_url", "address", "city", "website_url"].some((field) => campaignError?.message?.includes(field))) {
+  if (["photo_url", "address", "city", "website_url", "phase"].some((field) => campaignError?.message?.includes(field))) {
     const fallback = await supabase
       .from("campaigns")
       .select("id, slug, name, goal, event_date, deadline, food_info, active, admin_email")
@@ -977,6 +1083,57 @@ function defaultCampaignDates() {
     eventDate: eventDate.toISOString().slice(0, 10),
     deadline: deadline.toISOString().slice(0, 10),
   };
+}
+
+async function sendCampaignMessage() {
+  if (!supabase || !campaign.id) {
+    showToast(translations[language].setupRequired);
+    return;
+  }
+
+  const button = document.getElementById("sendCampaignMessageButton");
+  const status = document.getElementById("messageStatus");
+  const subject = document.getElementById("messageSubject").value.trim();
+  const body = document.getElementById("messageBody").value.trim();
+  const messageLanguage = document.getElementById("messageLanguage").value;
+
+  if (subject.length < 3 || body.length < 10) {
+    showToast(translations[language].messageSendError);
+    return;
+  }
+  if (!window.confirm(translations[language].messageConfirm)) return;
+
+  button.disabled = true;
+  status.textContent = translations[language].messageSending;
+  const { data, error } = await supabase.functions.invoke("send-campaign-message", {
+    body: {
+      campaignId: campaign.id,
+      subject,
+      body,
+      language: messageLanguage,
+    },
+  });
+  button.disabled = false;
+
+  if (error || data?.error) {
+    console.error(error || data);
+    const code = data?.error || error?.message || "";
+    const message = code.includes("email_provider_not_configured")
+      ? translations[language].messageProviderMissing
+      : code.includes("no_recipients")
+        ? translations[language].messageNoRecipients
+        : translations[language].messageSendError;
+    status.textContent = message;
+    showToast(message);
+    return;
+  }
+
+  const sentMessage = translations[language].messageSent.replace(
+    "{{count}}",
+    String(data?.sent || 0),
+  );
+  status.textContent = sentMessage;
+  showToast(sentMessage);
 }
 
 document.getElementById("heroCta").addEventListener("click", () => {
@@ -1068,6 +1225,9 @@ document.getElementById("languageToggle").addEventListener("click", () => {
 
 document.getElementById("mosqueSearch").addEventListener("input", renderDirectory);
 document.getElementById("presetSearch").addEventListener("input", renderPresetLibrary);
+document.getElementById("campaignPhase").addEventListener("change", () => populateMessageTemplate(true));
+document.getElementById("refreshMessageButton").addEventListener("click", () => populateMessageTemplate(true));
+document.getElementById("sendCampaignMessageButton").addEventListener("click", sendCampaignMessage);
 document.getElementById("settingHasDeadline").addEventListener("change", (event) => {
   const deadlineInput = document.getElementById("settingDeadline");
   deadlineInput.disabled = !event.currentTarget.checked;
@@ -1159,16 +1319,18 @@ document.getElementById("settingsForm").addEventListener("submit", async (event)
     food_info: document.getElementById("settingFood").value.trim(),
     photo_url: document.getElementById("settingPhotoUrl").value.trim() || null,
     active: document.getElementById("settingActive").checked,
+    phase: document.getElementById("campaignPhase").value,
     updated_at: new Date().toISOString(),
   };
 
   let { error } = await supabase.from("campaigns").update(updates).eq("id", campaign.id);
-  if (["photo_url", "address", "city", "website_url"].some((field) => error?.message?.includes(field))) {
+  if (["photo_url", "address", "city", "website_url", "phase"].some((field) => error?.message?.includes(field))) {
     const fallbackUpdates = { ...updates };
     delete fallbackUpdates.photo_url;
     delete fallbackUpdates.address;
     delete fallbackUpdates.city;
     delete fallbackUpdates.website_url;
+    delete fallbackUpdates.phase;
     const fallback = await supabase.from("campaigns").update(fallbackUpdates).eq("id", campaign.id);
     error = fallback.error;
   }
@@ -1311,6 +1473,7 @@ document.getElementById("presetResults").addEventListener("click", async (event)
     address: preset.address || "",
     website_url: preset.websiteUrl || "",
     active: false,
+    phase: "draft",
   };
 
   let { data, error } = await supabase
@@ -1318,12 +1481,13 @@ document.getElementById("presetResults").addEventListener("click", async (event)
     .insert(row)
     .select("id")
     .single();
-  if (["photo_url", "address", "city", "website_url"].some((field) => error?.message?.includes(field))) {
+  if (["photo_url", "address", "city", "website_url", "phase"].some((field) => error?.message?.includes(field))) {
     const fallbackRow = { ...row };
     delete fallbackRow.photo_url;
     delete fallbackRow.city;
     delete fallbackRow.address;
     delete fallbackRow.website_url;
+    delete fallbackRow.phase;
     const fallback = await supabase
       .from("campaigns")
       .insert(fallbackRow)
@@ -1358,6 +1522,7 @@ document.getElementById("duplicateRoundButton").addEventListener("click", async 
     address: campaign.address || "",
     website_url: campaign.websiteUrl || "",
     active: false,
+    phase: "draft",
   };
 
   try {
@@ -1386,6 +1551,7 @@ document.getElementById("newCampaignButton").addEventListener("click", async () 
     address: "",
     website_url: "",
     active: false,
+    phase: "draft",
   };
 
   let { data, error } = await supabase
@@ -1393,12 +1559,13 @@ document.getElementById("newCampaignButton").addEventListener("click", async () 
     .insert(row)
     .select("id")
     .single();
-  if (["photo_url", "address", "city", "website_url"].some((field) => error?.message?.includes(field))) {
+  if (["photo_url", "address", "city", "website_url", "phase"].some((field) => error?.message?.includes(field))) {
     const fallbackRow = { ...row };
     delete fallbackRow.photo_url;
     delete fallbackRow.city;
     delete fallbackRow.address;
     delete fallbackRow.website_url;
+    delete fallbackRow.phase;
     const fallback = await supabase
       .from("campaigns")
       .insert(fallbackRow)

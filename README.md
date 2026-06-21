@@ -24,6 +24,9 @@ Application statique gratuite pour lancer des campagnes locales Open Mosque.
 - Creation d'un nouveau round depuis une mosquee existante: compteur vide,
   nouveau lien public et reinscription possible pour les memes courriels.
 - Date limite optionnelle pour les inscriptions.
+- Phases de mobilisation par campagne: brouillon, inscriptions ouvertes,
+  objectif atteint, evenement confirme, termine.
+- Message courriel aux participants qui ont accepte de recevoir les nouvelles.
 - Attribution ou retrait d'un responsable local limite a une seule mosquee.
 - URL distincte pour chaque mosquee: `?campaign=slug`.
 - Donnees protegees par Row Level Security.
@@ -115,6 +118,42 @@ Cette migration limite chaque intention a 5 invites maximum, garde une seule
 intention par courriel et ajoute une limite de tentatives par appareil/reseau
 sur une courte periode. L'empreinte utilisee pour cette limite est hashee; elle
 ne stocke pas l'adresse IP brute.
+
+Pour activer les phases de campagne et l'historique des messages aux
+participants, appliquer:
+
+```text
+supabase/add-campaign-mobilization.sql
+```
+
+Cette migration ajoute `campaigns.phase` et la table `campaign_messages`.
+
+## Courriels participants
+
+L'interface admin appelle la fonction Supabase Edge:
+
+```text
+send-campaign-message
+```
+
+Le code local est dans:
+
+```text
+supabase/functions/send-campaign-message/index.ts
+```
+
+Secrets requis cote Supabase Edge Functions:
+
+```text
+RESEND_API_KEY=...
+OPEN_MOSQUE_FROM_EMAIL=Open Mosque <adresse-verifiee@domaine.ca>
+OPEN_MOSQUE_REPLY_TO=optionnel
+OPEN_MOSQUE_PUBLIC_URL=https://maguirio.github.io/open-mosque/
+OPEN_MOSQUE_LOGO_URL=https://maguirio.github.io/open-mosque/assets/open-mosque-logo.jpg
+```
+
+Ne jamais mettre `RESEND_API_KEY` ni `SUPABASE_SERVICE_ROLE_KEY` dans
+`config.js` ou dans GitHub Pages.
 
 La migration suivante reste disponible seulement si tu veux activer la liste
 publique sans la fonctionnalite photo:
