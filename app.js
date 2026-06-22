@@ -480,6 +480,7 @@ let adminCampaigns = [];
 let publicCampaigns = [];
 let isSuperAdmin = false;
 let publicCampaignAvailable = true;
+let messageTemplateCampaignId = null;
 
 function isCampaignOpen() {
   if (!campaign.deadline) return publicCampaignAvailable && campaign.active;
@@ -574,6 +575,7 @@ function populateMessageTemplate(force = false) {
   if (force || !body.value.trim()) {
     body.value = renderTemplate(translations[language].messageBodyTemplate, values);
   }
+  messageTemplateCampaignId = campaign.id || campaign.slug;
 }
 
 function mosqueLocationText(item) {
@@ -795,7 +797,7 @@ function render() {
   document.getElementById("settingWebsite").value = campaign.websiteUrl || "";
   document.getElementById("settingActive").checked = campaign.active;
   document.getElementById("campaignPhase").value = campaign.phase || (campaign.active ? "active" : "draft");
-  populateMessageTemplate(false);
+  populateMessageTemplate(messageTemplateCampaignId !== (campaign.id || campaign.slug));
   document.getElementById("messageStatus").textContent = "";
   document.getElementById("settingGoal").value = campaign.goal;
   document.getElementById("settingEventDate").value = campaign.eventDate;
@@ -950,7 +952,7 @@ async function loadPublicCampaign() {
   const row = Array.isArray(data) ? data[0] : data;
 
   if (error || !row) {
-    console.error(error);
+    if (error) console.error(error);
     publicCampaignAvailable = false;
     campaign = {
       ...defaults,
