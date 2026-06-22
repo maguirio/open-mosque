@@ -199,6 +199,12 @@ https://TON-NOM.github.io/open-mosque/
 
 ## Checklist avant vrai lancement
 
+Voir aussi:
+
+```text
+LAUNCH_CHECKLIST.md
+```
+
 - Confirmer le nom officiel de la premiere mosquee.
 - Confirmer la date de l'evenement.
 - Confirmer la date limite d'inscription.
