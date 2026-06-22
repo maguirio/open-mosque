@@ -80,6 +80,24 @@ function renderEmailHtml(params: {
 </html>`;
 }
 
+function getSupabaseSecretKey() {
+  const legacyKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (legacyKey) return legacyKey;
+
+  const secretKeys = Deno.env.get("SUPABASE_SECRET_KEYS");
+  if (!secretKeys) return "";
+  try {
+    const parsed = JSON.parse(secretKeys);
+    if (typeof parsed === "string") return parsed;
+    if (parsed && typeof parsed === "object") {
+      return Object.values(parsed).find((value) => typeof value === "string") as string || "";
+    }
+  } catch {
+    return "";
+  }
+  return "";
+}
+
 async function supabaseRest<T>(
   supabaseUrl: string,
   serviceRoleKey: string,
@@ -113,7 +131,7 @@ export default {
   }
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
-  const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  const serviceRoleKey = getSupabaseSecretKey();
   const resendApiKey = Deno.env.get("RESEND_API_KEY");
   const fromEmail = Deno.env.get("OPEN_MOSQUE_FROM_EMAIL");
   const replyTo = Deno.env.get("OPEN_MOSQUE_REPLY_TO") || undefined;
